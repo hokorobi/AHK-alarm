@@ -4,8 +4,10 @@ KeyHistory 0
 SetWinDelay -1
 SetControlDelay -1
 
+argTimeExplain := "n分後: [0-9]+`nh時間m分s秒後: [0-9]+h[0-9]+m[0-9]+s`n次の時分: [0-2][0-9]:[0-5][0-9]"
+
 if (A_Args.length == 0) {
-  MsgBox("Needs Arguments.")
+  MsgBox("Needs Arguments.`n`ntime [message]`n`ntime:`n" . argTimeExplain)
   ExitApp
 }
 
@@ -13,12 +15,7 @@ TraySetIcon(A_ScriptDir . "\alarm.ico", , true)
 inputtime := A_Args[1]
 
 if (getTargetTime(inputtime) == 0) {
-  m := "時間指定が不正です: " . inputtime
-  m := m . "`n"
-  m := m . "`nn分後: [0-9]+"
-  m := m . "`nh時間m分s秒後: [0-9]+h[0-9]+m[0-9]+s"
-  m := m . "`n次の時分: [0-2][0-9]:[0-5][0-9]"
-  MsgBox(m)
+  MsgBox("時間指定が不正です: " . inputtime . "`n`n" . argTimeExplain)
   ExitApp
 }
 
@@ -28,7 +25,7 @@ TrayTip(s, "Alarm", 1)
 ; Set tray icon tooltip
 A_IconTip := s
 ; MsgBox(DateDiff(getTargetTime(), A_Now, "Seconds") . "秒")
-SetTimer(Alarm, DateDiff(getTargetTime(inputtime), A_Now, "Seconds")*1000)
+SetTimer(Alarm, DateDiff(A_Now, getTargetTime(inputtime), "Seconds")*1000)
 ESC::ExitApp
 
 Alarm() {
