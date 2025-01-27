@@ -4,12 +4,13 @@ KeyHistory 0
 SetWinDelay -1
 SetControlDelay -1
 
-argTimeExplain := "n分後: [0-9]+`nh時間m分s秒後: [0-9]+h[0-9]+m[0-9]+s`n次の時分: [0-2][0-9]:[0-5][0-9]"
+argTimeExplain := "N minutes later: [0-9]+`nH hours M minutes S seconds later: [0-9]+h[0-9]+m[0-9]+s`nNext hour:minute: [0-2][0-9]:[0-5][0-9]"
 listfile := A_ScriptDir . "\alarm.lst"
 windowMoveInterval := 100
 windowMoveRange := 100
 windowWidth := 600
 windowHeight := 400
+defaultMessage := "It's time!"
 
 if (A_Args.length == 0) {
   MsgBox("Needs Arguments.`n`ntime [message]`n`ntime:`n" . argTimeExplain)
@@ -26,7 +27,7 @@ if (inputtime == "l") {
 }
 
 if (getTargetTime(inputtime) == 0) {
-  MsgBox("時間指定が不正です: " . inputtime . "`n`n" . argTimeExplain)
+  MsgBox("Invalid time spec: " . inputtime . "`n`n" . argTimeExplain)
   ExitApp
 }
 
@@ -35,14 +36,14 @@ s := FormatTime(getTargetTime(inputtime), "HH:mm:ss") . getMessage() . "`n"
 TrayTip(s, "Alarm", 1)
 ; Set tray icon tooltip
 A_IconTip := s
-; MsgBox(DateDiff(getTargetTime(), A_Now, "Seconds") . "秒")
+; MsgBox(DateDiff(getTargetTime(), A_Now, "Seconds") . "seconds")
 SetTimer(Alarm, DateDiff(A_Now, getTargetTime(inputtime), "Seconds")*1000)
 FileAppend(s, listfile)
 
 Alarm() {
   list := FileRead(listfile)
   newList := StrReplace(list, s, , 1, &count)
-  ; 削除されていたらアラームを表示しない
+  ; Do not display the alarm if it has been deleted.
   if (count == 0) {
     ExitApp
   }
@@ -89,10 +90,10 @@ getTargetTime(inputtime) {
 
 getDeltaSeconds(inputtime) {
   if IsNumber(inputtime) {
-    ; 数字だけなら分として扱う
+    ; Treat it as minutes if it's only a number.
     return inputtime*60
   }
-  ; h 時間 m 分 s 秒
+  ; H hours M minutes S seconds
   if RegExMatch(inputtime, "^[0-9hms]+$") {
     h := 0
     m := 0
@@ -113,7 +114,7 @@ getDeltaSeconds(inputtime) {
         total := total + temp*3600
         temp := 0
       } else {
-        MsgBox("実装おかしいよ " . inputtime)
+        MsgBox("It's an incorrect implementation. `ntime: " . inputtime)
         ExitApp
       }
     }
@@ -132,7 +133,7 @@ getMessage() {
       message := message . " " . A_Args[A_Index]
     }
   } else {
-    message := "It's time!"
+    message := defaultMessage
   }
   return message
 }

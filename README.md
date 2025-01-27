@@ -1,38 +1,40 @@
-## 概要
-Autohotkey v2 のアラームアプリ。
+[Japanese README](README-ja.md)
 
-## コマンドライン
+## Overview
+An alarm application using Autohotkey v2.
+
+## Command Line
 
 alarm.ahk time [message1 message2 ...]
 
-- time: アラームを表示する時間を指定。現在からの経過時間を指定する書式と、時刻を指定する書式がある。<br>
-  l の場合はアラームのリストを表示
+- time: Specify the time to display the alarm. There are formats for specifying elapsed time from the current time and for specifying a specific time.<br>
+  "l" will display the list of alarms.
 
-  - 数字 N だけの場合は、現在時刻から N 分後にアラーム<br>
-    数字に「h」か「m」か「s」をつけると、それぞれ「時間」、「分」、「秒」として扱う。<br>
-    1h2m3s などのように組み合わせて入力もできる。
+  - If only a number "N" is given, the alarm will display "N" minutes after the current time.<br>
+    Adding "h", "m", or "s" to the number treats it as "hours", "minutes", or "seconds" respectively.<br>
+    You can also combine them, such as 1h2m3s.
 
-    - 例1: alarm.ahk 10<br>
-      10 分後にアラーム表示
-    - 例2: alarm.ahk 1h10<br>
-      1 時間 10 分後にアラーム表示
-    - 例3: alarm.ahk 1m10s<br>
-      1 分 10 秒後にアラーム表示
+    - Example 1: alarm.ahk 10<br>
+      Alarm will display in 10 minutes.
+    - Example 2: alarm.ahk 1h10m<br>
+      Alarm will display in 1 hour and 10 minutes.
+    - Example 3: alarm.ahk 1m10s<br>
+      Alarm will display in 1 minute and 10 seconds.
 
-  - 時刻を指定<br>
-    hh:mm で指定した時刻にアラーム<br>
-    今日の hh:mm を過ぎていたら翌日の hh:mm を指定したことになる
+  - Specify a time<br>
+    An alarm will display at the specified time in hh:mm format.<br>
+    If the specified time has already passed today, it will be understood as the same time tomorrow.
 
-    - 例1: alarm.ahk 20:28<br>
-      次の 20:28 にアラーム表示。
+    - Example 1: alarm.ahk 20:28<br>
+      Alarm will display at the next 20:28.
 
   - l<br>
-    アラームのリストを表示
+    Displays the list of alarms.
 
-- message1 message2 ...: アラームで表示するメッセージ。すべてのメッセージを半角スペースで結合する。
+- message1 message2 ...: Messages to be displayed in the alarm. Combine all messages with a half-width space.
 
+## Stopping the Alarm
 
-## アラームの停止
+Delete the corresponding line of the alarm from alarlm.lst located in the same folder as alarm.ahk.<br>
+The process will remain, but the alarm window will no longer be displayed. 
 
-alarm.ahk と同じフォルダにある alarlm.lst から対象のアラームの行を削除する。<br>
-プロセスは残るがアラームのウィンドウは表示されなくなる。
