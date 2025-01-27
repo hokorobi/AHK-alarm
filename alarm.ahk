@@ -10,7 +10,7 @@ windowMoveInterval := 100
 windowMoveRange := 100
 windowWidth := 600
 windowHeight := 400
-defaultMessage := "It's time!"
+defaultMessage := " It's time!"
 
 if (A_Args.length == 0) {
   MsgBox("Needs Arguments.`n`ntime [message]`n`ntime:`n" . argTimeExplain)
