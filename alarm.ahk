@@ -5,6 +5,11 @@ SetWinDelay -1
 SetControlDelay -1
 
 argTimeExplain := "n分後: [0-9]+`nh時間m分s秒後: [0-9]+h[0-9]+m[0-9]+s`n次の時分: [0-2][0-9]:[0-5][0-9]"
+listfile := A_ScriptDir . "\alarm.lst"
+windowMoveInterval := 100
+windowMoveRange := 100
+windowWidth := 600
+windowHeight := 400
 
 if (A_Args.length == 0) {
   MsgBox("Needs Arguments.`n`ntime [message]`n`ntime:`n" . argTimeExplain)
@@ -14,37 +19,51 @@ if (A_Args.length == 0) {
 TraySetIcon(A_ScriptDir . "\alarm.ico", , true)
 inputtime := A_Args[1]
 
+; View alarm list
+if (inputtime == "l") {
+  MsgBox(FileRead(listfile))
+  ExitApp
+}
+
 if (getTargetTime(inputtime) == 0) {
   MsgBox("時間指定が不正です: " . inputtime . "`n`n" . argTimeExplain)
   ExitApp
 }
 
-s := FormatTime(getTargetTime(inputtime), "HH:mm:ss ") . getMessage()
+s := FormatTime(getTargetTime(inputtime), "HH:mm:ss") . getMessage() . "`n"
 ; Notify
 TrayTip(s, "Alarm", 1)
 ; Set tray icon tooltip
 A_IconTip := s
 ; MsgBox(DateDiff(getTargetTime(), A_Now, "Seconds") . "秒")
 SetTimer(Alarm, DateDiff(A_Now, getTargetTime(inputtime), "Seconds")*1000)
-ESC::ExitApp
+FileAppend(s, listfile)
 
 Alarm() {
+  list := FileRead(listfile)
+  newList := StrReplace(list, s, , 1, &count)
+  ; 削除されていたらアラームを表示しない
+  if (count == 0) {
+    ExitApp
+  }
+  FileDelete(listfile)
+  FileAppend(newList, listfile)
   MyGui := Gui()
   MyGui.Opt("+AlwaysOnTop")
-  MyGui.SetFont("s32 w600")
-  MyGui.Add("Text", "x0 w600 y150 Center", getMessage())
-  MyGui.Show("w600 h400")
+  MyGui.SetFont("s32 w" . windowWidth)
+  MyGui.Add("Text", "x0 w" . windowWidth . " y150 Center", getMessage())
+  MyGui.Show("w" . windowWidth . " h" . windowHeight)
   MyGui.GetPos(&x,&y)
   Loop 2 {
-    Sleep(100)
-    MyGui.Move(x-100, y)
-    Sleep(100)
-    MyGui.Move(x, y-100)
-    Sleep(100)
-    MyGui.Move(x, y+100)
-    Sleep(100)
-    MyGui.Move(x+100, y)
-    Sleep(100)
+    Sleep(windowMoveInterval)
+    MyGui.Move(x-windowMoveRange, y)
+    Sleep(windowMoveInterval)
+    MyGui.Move(x, y-windowMoveRange)
+    Sleep(windowMoveInterval)
+    MyGui.Move(x, y+windowMoveRange)
+    Sleep(windowMoveInterval)
+    MyGui.Move(x+windowMoveRange, y)
+    Sleep(windowMoveInterval)
     MyGui.Move(x, y)
   }
 }
