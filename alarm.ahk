@@ -51,9 +51,9 @@ Alarm() {
   FileAppend(newList, listfile)
   MyGui := Gui()
   MyGui.Opt("+AlwaysOnTop")
-  MyGui.SetFont("s32 w" . windowWidth)
-  MyGui.Add("Text", "x0 w" . windowWidth . " y150 Center", getMessage())
-  MyGui.Show("w" . windowWidth . " h" . windowHeight)
+  MyGui.SetFont(Format("s32 w{}", windowWidth))
+  MyGui.Add("Text", Format("x0 w{} y150 Center", windowWidth), getMessage())
+  MyGui.Show(Format("w{} h{}", windowWidth, windowHeight))
   MyGui.GetPos(&x,&y)
   Loop 2 {
     Sleep(windowMoveInterval)
@@ -76,14 +76,14 @@ getTargetTime(inputtime) {
     return DateAdd(now, temp, "Seconds")
   }
 
-  if RegExMatch(inputtime, "^([0-9]+):([0-9]+)$", &hm) {
-    new :=  SubStr(now, 1, 8) . hm[1] . hm[2] . "00"
+  if RegExMatch(inputtime, "^([0-2]?[0-9]):([0-5]?[0-9])$", &hm) {
+    new := Format("{}{:02}{:02}00", SubStr(now, 1, 8), hm[1], hm[2], "00")
     if (new > now) {
       return new
     }
 
     tomorrow := DateAdd(now, 1, "Days")
-    return SubStr(tomorrow, 1, 8) . hm[1] . hm[2] . "00"
+    return Format("{}{:02}{:02}00", SubStr(now, 1, 8), hm[1], hm[2], "00")
   }
   return 0
 }
