@@ -18,26 +18,26 @@ if (A_Args.length == 0) {
 }
 
 TraySetIcon(A_ScriptDir . "\alarm.ico", , true)
-inputtime := A_Args[1]
+inputTime := A_Args[1]
 
 ; View alarm list
-if (inputtime == "l") {
+if (inputTime == "l") {
   MsgBox(FileRead(listfile))
   ExitApp
 }
 
-if (getTargetTime(inputtime) == 0) {
-  MsgBox("Invalid time spec: " . inputtime . "`n`n" . argTimeExplain)
+if (getTargetTime(inputTime) == 0) {
+  MsgBox("Invalid time format: " . inputTime . "`n`n" . argTimeExplain)
   ExitApp
 }
 
-s := FormatTime(getTargetTime(inputtime), "HH:mm:ss") . getMessage() . "`n"
-; Notify
+s := FormatTime(getTargetTime(inputTime), "HH:mm:ss") . getMessage() . "`n"
+; Adding Notify
 TrayTip(s, "Alarm", 1)
 ; Set tray icon tooltip
 A_IconTip := s
-; MsgBox(DateDiff(getTargetTime(), A_Now, "Seconds") . "seconds")
-SetTimer(Alarm, DateDiff(A_Now, getTargetTime(inputtime), "Seconds")*1000)
+
+SetTimer(Alarm, DateDiff(A_Now, getTargetTime(inputTime), "Seconds")*1000)
 FileAppend(s, listfile)
 
 Alarm() {
@@ -69,14 +69,14 @@ Alarm() {
   }
 }
 
-getTargetTime(inputtime) {
-  temp := getDeltaSeconds(inputtime)
+getTargetTime(inputTime) {
+  temp := getDeltaSeconds(inputTime)
   now := A_Now
   if temp != 0 {
     return DateAdd(now, temp, "Seconds")
   }
 
-  if RegExMatch(inputtime, "^([0-2]?[0-9]):([0-5]?[0-9])$", &hm) {
+  if RegExMatch(inputTime, "^([0-2]?[0-9]):([0-5]?[0-9])$", &hm) {
     new := Format("{}{:02}{:02}00", SubStr(now, 1, 8), hm[1], hm[2], "00")
     if (new > now) {
       return new
@@ -88,19 +88,19 @@ getTargetTime(inputtime) {
   return 0
 }
 
-getDeltaSeconds(inputtime) {
-  if IsNumber(inputtime) {
+getDeltaSeconds(inputTime) {
+  if IsNumber(inputTime) {
     ; Treat it as minutes if it's only a number.
-    return inputtime*60
+    return inputTime*60
   }
   ; H hours M minutes S seconds
-  if RegExMatch(inputtime, "^[0-9hms]+$") {
+  if RegExMatch(inputTime, "^[0-9hms]+$") {
     h := 0
     m := 0
     s := 0
     total := 0
     temp := ""
-    chars := StrSplit(inputtime, "")
+    chars := StrSplit(inputTime, "")
     for c in chars {
       if IsNumber(c) {
         temp := temp . c
@@ -114,7 +114,7 @@ getDeltaSeconds(inputtime) {
         total := total + temp*3600
         temp := 0
       } else {
-        MsgBox("It's an incorrect implementation. `ntime: " . inputtime)
+        MsgBox("It's an incorrect implementation. `ntime: " . inputTime)
         ExitApp
       }
     }
