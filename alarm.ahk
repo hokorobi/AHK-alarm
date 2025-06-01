@@ -6,11 +6,12 @@ SetControlDelay -1
 
 argTimeExplain := "N minutes later: [0-9]+`nH hours M minutes S seconds later: [0-9]+h[0-9]+m[0-9]+s`nNext hour:minute: [0-2][0-9]:[0-5][0-9]"
 listfile := Format("{}\alarm.lst", A_ScriptDir)
+logfile := Format("{}\alarm.log", A_ScriptDir)
 windowMoveInterval := 100
 windowMoveRange := 100
 windowWidth := 600
 windowHeight := 400
-defaultMessage := " It's time!"
+defaultMessage := "It's time!"
 
 if (A_Args.length == 0) {
   MsgBox("Needs Arguments.`n`ntime [message]`n`ntime:`n" . argTimeExplain)
@@ -39,6 +40,7 @@ A_IconTip := s
 
 SetTimer(Alarm, DateDiff(A_Now, getTargetTime(inputTime), "Seconds")*1000)
 FileAppend(s, listfile)
+log("Add alarm: " . getArgs(), logfile)
 
 Alarm() {
   list := FileRead(listfile)
@@ -69,6 +71,7 @@ Alarm() {
     Sleep(windowMoveInterval)
     MyGui.Move(x, y)
   }
+  log("Alarm: " . getMessage(), logfile)
 }
 
 getTargetTime(inputTime) {
@@ -125,6 +128,18 @@ getDeltaSeconds(inputTime) {
   return 0
 }
 
+getArgs() {
+  args := ""
+  Loop A_Args.Length {
+    if (args == "") {
+      args := A_Args[A_Index]
+    } else {
+      args := args . " " . A_Args[A_Index]
+    }
+  }
+  return args
+}
+
 getMessage() {
   if (A_Args.Length <= 1) {
     return defaultMessage
@@ -143,4 +158,8 @@ getMessage() {
     }
   }
   return message
+}
+
+log(text, file) {
+  FileAppend(Format("{} {}`n", FormatTime(, "yyyy-MM-dd HH:mm:ss"), text), file)
 }
