@@ -126,16 +126,21 @@ getDeltaSeconds(inputTime) {
 }
 
 getMessage() {
+  if (A_Args.Length <= 1) {
+    return defaultMessage
+  }
+
   message := ""
-  if (A_Args.Length > 1) {
-    Loop A_Args.Length {
-      if (A_Index == 1) {
-        continue
-      }
+  Loop A_Args.Length {
+    if (A_Index == 1) {
+      continue
+    }
+
+    if (message == "") {
+      message := A_Args[A_Index]
+    } else {
       message := message . " " . A_Args[A_Index]
     }
-  } else {
-    message := defaultMessage
   }
   return message
 }
