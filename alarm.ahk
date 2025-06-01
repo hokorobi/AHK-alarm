@@ -5,7 +5,7 @@ SetWinDelay -1
 SetControlDelay -1
 
 argTimeExplain := "N minutes later: [0-9]+`nH hours M minutes S seconds later: [0-9]+h[0-9]+m[0-9]+s`nNext hour:minute: [0-2][0-9]:[0-5][0-9]"
-listfile := A_ScriptDir . "\alarm.lst"
+listfile := Format("{}\alarm.lst", A_ScriptDir)
 windowMoveInterval := 100
 windowMoveRange := 100
 windowWidth := 600
@@ -17,7 +17,7 @@ if (A_Args.length == 0) {
   ExitApp
 }
 
-TraySetIcon(A_ScriptDir . "\alarm.ico", , true)
+TraySetIcon(Format("{}\alarm.ico", A_ScriptDir), , true)
 inputTime := A_Args[1]
 
 ; View alarm list
@@ -27,11 +27,11 @@ if (inputTime == "l") {
 }
 
 if (getTargetTime(inputTime) == 0) {
-  MsgBox("Invalid time format: " . inputTime . "`n`n" . argTimeExplain)
+  MsgBox(Format("Invalid time format: {}`n`n{}", inputTime, argTimeExplain))
   ExitApp
 }
 
-s := FormatTime(getTargetTime(inputTime), "HH:mm:ss") . getMessage() . "`n"
+s := Format("{}{}`n", FormatTime(getTargetTime(inputTime), "HH:mm:ss"), getMessage())
 ; Adding Notify
 TrayTip(s, "Alarm", 1)
 ; Set tray icon tooltip
