@@ -47,7 +47,9 @@ Alarm() {
   if (count == 0) {
     ExitApp
   }
-  FileDelete(listfile)
+  if (FileExist(listfile)) {
+    FileDelete(listfile)
+  }
   FileAppend(newList, listfile)
   MyGui := Gui()
   MyGui.Opt("+AlwaysOnTop")
