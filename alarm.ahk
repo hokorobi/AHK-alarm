@@ -32,7 +32,7 @@ if (getTargetTime(inputTime) == 0) {
   ExitApp
 }
 
-s := Format("{}{}`n", FormatTime(getTargetTime(inputTime), "HH:mm:ss"), getMessage())
+s := Format("{} {}`n", FormatTime(getTargetTime(inputTime), "HH:mm:ss"), getMessage())
 ; Adding Notify
 TrayTip(s, "Alarm", 1)
 ; Set tray icon tooltip
