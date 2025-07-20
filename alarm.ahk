@@ -47,6 +47,7 @@ Alarm() {
   newList := StrReplace(list, s, , 1, &count)
   ; Do not display the alarm if it has been deleted.
   if (count == 0) {
+    log("Deleted: " . getMessage(), logfile)
     ExitApp
   }
   if (FileExist(listfile)) {
