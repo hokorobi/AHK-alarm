@@ -23,7 +23,7 @@ if (A_Args.length == 0) {
 
 ; Show alarm list
 if (A_Args[1] == "l") {
-  displayAlarmList()
+  showAlarmList()
   ExitApp
 }
 
@@ -44,7 +44,7 @@ SetTimer(Alarm, DateDiff(A_Now, targetTime, "Seconds")*1000)
 FileAppend(alarmString, ListFile)
 log("Add alarm: " . getArgs(), LogFile)
 
-displayAlarmList() {
+showAlarmList() {
   if FileExist(ListFile) && FileGetSize(ListFile) > 0 {
     MsgBox(FileRead(ListFile), "Alarm List")
   } else {
@@ -74,7 +74,7 @@ Alarm() {
   FileDelete(ListFile)
   FileAppend(newList, ListFile)
 
-  ; Create and display the alarm GUI
+  ; Create and show the alarm GUI
   MyGui := Gui()
   MyGui.Opt("+AlwaysOnTop")
   MyGui.SetFont(Format("s32 w{}", WindowWidth))
