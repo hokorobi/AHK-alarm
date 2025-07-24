@@ -21,27 +21,26 @@ if (A_Args.length == 0) {
   ExitApp
 }
 
-inputTime := A_Args[1]
-
 ; Show alarm list
-if (inputTime == "l") {
+if (A_Args[1] == "l") {
   displayAlarmList()
   ExitApp
 }
 
-if (getTargetTime(inputTime) == 0) {
-  MsgBox(Format("Invalid time format: {}`n`n{}", inputTime, ArgTimeExplain))
+targetTime := getTargetTime(A_Args[1])
+if (targetTime == 0) {
+  MsgBox(Format("Invalid time format: {}`n`n{}", A_Args[1], ArgTimeExplain))
   ExitApp
 }
 
-global alarmString := Format("{} {}`n", FormatTime(getTargetTime(inputTime), "HH:mm:ss"), getMessage())
+global alarmString := Format("{} {}`n", FormatTime(targetTime, "HH:mm:ss"), getMessage())
 TraySetIcon(Format("{}\alarm.ico", A_ScriptDir), , true)
 ; Adding Notify
 TrayTip(alarmString, "Alarm", 1)
 ; Set tray icon tooltip
 A_IconTip := alarmString
 
-SetTimer(Alarm, DateDiff(A_Now, getTargetTime(inputTime), "Seconds")*1000)
+SetTimer(Alarm, DateDiff(A_Now, targetTime, "Seconds")*1000)
 FileAppend(alarmString, ListFile)
 log("Add alarm: " . getArgs(), LogFile)
 
@@ -61,16 +60,21 @@ Alarm() {
   }
 
   list := FileRead(ListFile)
+
+  ; Remove the triggered alarm from the list
   newList := StrReplace(list, alarmString, , 1, &count)
 
-  ; Do not display the alarm if it has been deleted.
+  ; If the alarm was already deleted (not found in list), just log and exit.
   if (count == 0) {
     log("Deleted: " . getMessage(), LogFile)
     ExitApp
   }
 
+  ; Write the updated list back to the file
   FileDelete(ListFile)
   FileAppend(newList, ListFile)
+
+  ; Create and display the alarm GUI
   MyGui := Gui()
   MyGui.Opt("+AlwaysOnTop")
   MyGui.SetFont(Format("s32 w{}", WindowWidth))
@@ -93,12 +97,14 @@ Alarm() {
 }
 
 getTargetTime(inputTime) {
+  ; Try parsing as a delta time (e.g., "10", "1h30m")
   temp := getDeltaSeconds(inputTime)
   now := A_Now
   if temp != 0 {
     return DateAdd(now, temp, "Seconds")
   }
 
+  ; Try parsing as specific hour:minute (e.g., "14:30")
   if RegExMatch(inputTime, "^([0-2]?[0-9]):([0-5]?[0-9])$", &hm) {
     new := Format("{}{:02}{:02}00", SubStr(now, 1, 8), hm[1], hm[2], "00")
     if (new > now) {
