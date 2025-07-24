@@ -122,32 +122,33 @@ getDeltaSeconds(inputTime) {
     ; Treat it as minutes if it's only a number.
     return inputTime*60
   }
+
   ; H hours M minutes S seconds
   if RegExMatch(inputTime, "^[0-9hms]+$") {
     h := 0
     m := 0
     s := 0
-    total := 0
+    totalSeconds := 0
     temp := ""
     chars := StrSplit(inputTime, "")
     for c in chars {
       if IsNumber(c) {
-        temp := temp . c
+        temp .= c
       } else if (c == "s") {
-        total := total + temp
+        totalSeconds += temp
         temp := 0
       } else if (c := "m") {
-        total := total + temp*60
+        totalSeconds += temp*60
         temp := 0
       } else if (c := "h") {
-        total := total + temp*3600
+        totalSeconds += temp*3600
         temp := 0
       } else {
         MsgBox("It's an incorrect implementation. `ntime: " . inputTime)
         ExitApp
       }
     }
-    return total
+    return totalSeconds
   }
   return 0
 }
@@ -158,7 +159,7 @@ getArgs() {
     if (args == "") {
       args := A_Args[A_Index]
     } else {
-      args := args . " " . A_Args[A_Index]
+      args .= " " . A_Args[A_Index]
     }
   }
   return args
@@ -178,7 +179,7 @@ getMessage() {
     if (message == "") {
       message := A_Args[A_Index]
     } else {
-      message := message . " " . A_Args[A_Index]
+      message .= " " . A_Args[A_Index]
     }
   }
   return message
