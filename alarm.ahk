@@ -33,7 +33,7 @@ if (targetTime == 0) {
   ExitApp
 }
 
-global alarmString := Format("{} {}`n", FormatTime(targetTime, "HH:mm:ss"), getMessage())
+global alarmString := Format("{} {}`n", FormatTime(targetTime, "M/d HH:mm:ss"), getMessage())
 TraySetIcon(Format("{}\alarm.ico", A_ScriptDir), , true)
 ; Adding Notify
 TrayTip(alarmString, "Alarm", 1)
