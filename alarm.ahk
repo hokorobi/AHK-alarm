@@ -33,7 +33,7 @@ if (targetTime == 0) {
   ExitApp
 }
 
-global alarmString := Format("{} {}`n", FormatTime(targetTime, "M/d HH:mm:ss"), getMessage())
+global alarmString := Format("{} {}`n", FormatTime(targetTime, "M/d HH:mm:ss"), getAlarmMessage())
 TraySetIcon(Format("{}\alarm.ico", A_ScriptDir), , true)
 ; Adding Notify
 TrayTip(alarmString, "Alarm", 1)
@@ -42,7 +42,7 @@ A_IconTip := alarmString
 
 SetTimer(Alarm, DateDiff(A_Now, targetTime, "Seconds")*1000)
 FileAppend(alarmString, ListFile)
-log("Add alarm: " . getArgs(), LogFile)
+log("Add alarm: " . getAllArs(), LogFile)
 
 showAlarmList() {
   if FileExist(ListFile) && FileGetSize(ListFile) > 0 {
@@ -66,7 +66,7 @@ Alarm() {
 
   ; If the alarm was already deleted (not found in list), just log and exit.
   if (count == 0) {
-    log("Deleted: " . getMessage(), LogFile)
+    log("Deleted: " . getAlarmMessage(), LogFile)
     ExitApp
   }
 
@@ -78,7 +78,7 @@ Alarm() {
   MyGui := Gui()
   MyGui.Opt("+AlwaysOnTop")
   MyGui.SetFont(Format("s32 w{}", WindowWidth))
-  MyGui.Add("Text", Format("x0 w{} y150 Center", WindowWidth), getMessage())
+  MyGui.Add("Text", Format("x0 w{} y150 Center", WindowWidth), getAlarmMessage())
   MyGui.Show(Format("w{} h{}", WindowWidth, WindowHeight))
   MyGui.GetPos(&x,&y)
   Loop 2 {
@@ -93,7 +93,7 @@ Alarm() {
     Sleep(WindowMoveInterval)
     MyGui.Move(x, y)
   }
-  log("Alarm: " . getMessage(), LogFile)
+  log("Alarm: " . getAlarmMessage(), LogFile)
 }
 
 getTargetTime(inputTime) {
@@ -118,12 +118,12 @@ getTargetTime(inputTime) {
 }
 
 getDeltaSeconds(inputTime) {
+  ; Case 1: Pure number (treat as minutes)
   if IsNumber(inputTime) {
-    ; Treat it as minutes if it's only a number.
     return inputTime*60
   }
 
-  ; H hours M minutes S seconds
+  ; Case 2: H hours M minutes S seconds (e.g., 1h30m5s)
   if RegExMatch(inputTime, "^[0-9hms]+$") {
     h := 0
     m := 0
@@ -153,7 +153,7 @@ getDeltaSeconds(inputTime) {
   return 0
 }
 
-getArgs() {
+getAllArs() {
   args := ""
   Loop A_Args.Length {
     if (args == "") {
@@ -165,7 +165,7 @@ getArgs() {
   return args
 }
 
-getMessage() {
+getAlarmMessage() {
   if (A_Args.Length <= 1) {
     return DefaultMessage
   }
