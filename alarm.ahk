@@ -4,75 +4,92 @@ KeyHistory 0
 SetWinDelay -1
 SetControlDelay -1
 
-argTimeExplain := "N minutes later: [0-9]+`nH hours M minutes S seconds later: [0-9]+h[0-9]+m[0-9]+s`nNext hour:minute: [0-2][0-9]:[0-5][0-9]"
-listfile := Format("{}\alarm.lst", A_ScriptDir)
-logfile := Format("{}\alarm.log", A_ScriptDir)
-windowMoveInterval := 100
-windowMoveRange := 100
-windowWidth := 600
-windowHeight := 400
-defaultMessage := "It's time!"
+global ArgTimeExplain := "  N minutes later: [0-9]+`n"
+. "  H hours M minutes S seconds later: [0-9]+h[0-9]+m[0-9]+s`n"
+. "  Next hour:minute: [0-2][0-9]:[0-5][0-9]`n"
+. "  Show alarm list: l"
+global ListFile := Format("{}\alarm.lst", A_ScriptDir)
+global LogFile := Format("{}\alarm.log", A_ScriptDir)
+global WindowMoveInterval := 100
+global WindowMoveRange := 100
+global WindowWidth := 600
+global WindowHeight := 400
+global DefaultMessage := "It's time!"
 
 if (A_Args.length == 0) {
-  MsgBox("Needs Arguments.`n`ntime [message]`n`ntime:`n" . argTimeExplain)
+  MsgBox("Needs Arguments.`n`nUsage:`n  time [message]`n`ntime:`n" . ArgTimeExplain, "AHK-alarm")
   ExitApp
 }
 
-TraySetIcon(Format("{}\alarm.ico", A_ScriptDir), , true)
 inputTime := A_Args[1]
 
-; View alarm list
+; Show alarm list
 if (inputTime == "l") {
-  MsgBox(FileRead(listfile))
+  displayAlarmList()
   ExitApp
 }
 
 if (getTargetTime(inputTime) == 0) {
-  MsgBox(Format("Invalid time format: {}`n`n{}", inputTime, argTimeExplain))
+  MsgBox(Format("Invalid time format: {}`n`n{}", inputTime, ArgTimeExplain))
   ExitApp
 }
 
-s := Format("{} {}`n", FormatTime(getTargetTime(inputTime), "HH:mm:ss"), getMessage())
+global alarmString := Format("{} {}`n", FormatTime(getTargetTime(inputTime), "HH:mm:ss"), getMessage())
+TraySetIcon(Format("{}\alarm.ico", A_ScriptDir), , true)
 ; Adding Notify
-TrayTip(s, "Alarm", 1)
+TrayTip(alarmString, "Alarm", 1)
 ; Set tray icon tooltip
-A_IconTip := s
+A_IconTip := alarmString
 
 SetTimer(Alarm, DateDiff(A_Now, getTargetTime(inputTime), "Seconds")*1000)
-FileAppend(s, listfile)
-log("Add alarm: " . getArgs(), logfile)
+FileAppend(alarmString, ListFile)
+log("Add alarm: " . getArgs(), LogFile)
+
+displayAlarmList() {
+  if FileExist(ListFile) && FileGetSize(ListFile) > 0 {
+    MsgBox(FileRead(ListFile), "Alarm List")
+  } else {
+    MsgBox("No alarms set yet.", "Alarm List")
+  }
+}
 
 Alarm() {
-  list := FileRead(listfile)
-  newList := StrReplace(list, s, , 1, &count)
-  ; Do not display the alarm if it has been deleted.
-  if (count == 0) {
-    log("Deleted: " . getMessage(), logfile)
+  if (!FileExist(ListFile)) {
+    log("Deleted list file: " . ListFile, LogFile)
+    MsgBox("Deleted list file: " . ListFile, "AHK-Alarm")
     ExitApp
   }
-  if (FileExist(listfile)) {
-    FileDelete(listfile)
+
+  list := FileRead(ListFile)
+  newList := StrReplace(list, alarmString, , 1, &count)
+
+  ; Do not display the alarm if it has been deleted.
+  if (count == 0) {
+    log("Deleted: " . getMessage(), LogFile)
+    ExitApp
   }
-  FileAppend(newList, listfile)
+
+  FileDelete(ListFile)
+  FileAppend(newList, ListFile)
   MyGui := Gui()
   MyGui.Opt("+AlwaysOnTop")
-  MyGui.SetFont(Format("s32 w{}", windowWidth))
-  MyGui.Add("Text", Format("x0 w{} y150 Center", windowWidth), getMessage())
-  MyGui.Show(Format("w{} h{}", windowWidth, windowHeight))
+  MyGui.SetFont(Format("s32 w{}", WindowWidth))
+  MyGui.Add("Text", Format("x0 w{} y150 Center", WindowWidth), getMessage())
+  MyGui.Show(Format("w{} h{}", WindowWidth, WindowHeight))
   MyGui.GetPos(&x,&y)
   Loop 2 {
-    Sleep(windowMoveInterval)
-    MyGui.Move(x-windowMoveRange, y)
-    Sleep(windowMoveInterval)
-    MyGui.Move(x, y-windowMoveRange)
-    Sleep(windowMoveInterval)
-    MyGui.Move(x, y+windowMoveRange)
-    Sleep(windowMoveInterval)
-    MyGui.Move(x+windowMoveRange, y)
-    Sleep(windowMoveInterval)
+    Sleep(WindowMoveInterval)
+    MyGui.Move(x-WindowMoveRange, y)
+    Sleep(WindowMoveInterval)
+    MyGui.Move(x, y-WindowMoveRange)
+    Sleep(WindowMoveInterval)
+    MyGui.Move(x, y+WindowMoveRange)
+    Sleep(WindowMoveInterval)
+    MyGui.Move(x+WindowMoveRange, y)
+    Sleep(WindowMoveInterval)
     MyGui.Move(x, y)
   }
-  log("Alarm: " . getMessage(), logfile)
+  log("Alarm: " . getMessage(), LogFile)
 }
 
 getTargetTime(inputTime) {
@@ -143,7 +160,7 @@ getArgs() {
 
 getMessage() {
   if (A_Args.Length <= 1) {
-    return defaultMessage
+    return DefaultMessage
   }
 
   message := ""
