@@ -112,7 +112,7 @@ getTargetTime(inputTime) {
     }
 
     tomorrow := DateAdd(now, 1, "Days")
-    return Format("{}{:02}{:02}00", SubStr(now, 1, 8), hm[1], hm[2], "00")
+    return Format("{}{:02}{:02}00", SubStr(tomorrow, 1, 8), hm[1], hm[2], "00")
   }
   return 0
 }
