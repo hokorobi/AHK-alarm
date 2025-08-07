@@ -42,7 +42,7 @@ A_IconTip := alarmString
 
 SetTimer(Alarm, DateDiff(A_Now, targetTime, "Seconds")*1000)
 FileAppend(alarmString, ListFile)
-log("Add alarm: " . getAllArs(), LogFile)
+log("Add alarm: " . getAllArgs(), LogFile)
 
 showAlarmList() {
   if FileExist(ListFile) && FileGetSize(ListFile) > 0 {
@@ -153,7 +153,7 @@ getDeltaSeconds(inputTime) {
   return 0
 }
 
-getAllArs() {
+getAllArgs() {
   args := ""
   Loop A_Args.Length {
     if (args == "") {
