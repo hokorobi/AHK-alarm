@@ -36,5 +36,4 @@ alarm.ahk time [message1 message2 ...]
 ## Stopping the Alarm
 
 Delete the corresponding line of the alarm from alarlm.lst located in the same folder as alarm.ahk.<br>
-The process will remain, but the alarm window will no longer be displayed. 
-
+When a deleted alarm's time arrives, the process will terminate without displaying an alarm window.
